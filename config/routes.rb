@@ -1,13 +1,18 @@
 SampleApp::Application.routes.draw do
-  get "users/new"
 
-#this is a special one that only works for the home page
+  resources :users
+
+#  get "users/new"
+#  this one no longer necessary now that we have the above
+
   root to: 'static_pages#home'
+#this is a special one that only works for the home page
 
-  match '/help', to: 'static_pages#help'
+  match '/signup',  to: 'users#new'
+  match '/help' => 'static_pages#help'
   match '/about', to: 'static_pages#about'
   match '/contact', to: 'static_pages#contact'
-  match '/signup', to: 'users#new'
+
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
