@@ -3,15 +3,28 @@
 
 <div class="row">
 	<div class="span6 offset3">
-		<%= form_for(:session, url: sessions_path) do |f| %>
+		<%= form_tag sessions_path do %>
 			
-			<%= f.label :email %>
-			<%= f.text_field :email %>
+			<%= label_tag :email %>
+			<%= text_field_tag :email, session[:email] %>
 			
-			<%= f.label :password %>
-			<%= f.text_field :password %>
+			<%= label_tag :password %>
+			<%= password_field_tag :password, session[:password] %>
 			
-			<%= f.submit "Sign in", class: "btn btn-large btn-primary" %>
+			<%= submit_tag "Sign in" %>
+
+<%# getting rid of the below required changing from a double-layer hash in %>
+<%# sessions_controler.rb to a single-layer hash %>
+
+<%#		<%= form_for(:session, url: sessions_path) do |f| %>
+			
+<%#			<%= f.label :email %>
+<%#			<%= f.text_field :email %>
+			
+<%#			<%= f.label :password %>
+<%#			<%= f.text_field :password %>
+			
+<%#			<%= f.submit "Sign in", class: "btn btn-large btn-primary" %>
 			
 		<% end %>
 		

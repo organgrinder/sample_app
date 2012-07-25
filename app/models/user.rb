@@ -13,6 +13,8 @@ class User < ActiveRecord::Base
   attr_accessible :email, :name, :password, :password_confirmation
   has_secure_password
   
+#has_secure_password automatically creates "validates"-type tests for password_digest field in the db
+  
   before_save { |user| user.email = email.downcase }
   before_save :create_remember_token
   
@@ -20,8 +22,12 @@ class User < ActiveRecord::Base
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true, format: { with: VALID_EMAIL_REGEX }, 
     uniqueness: { case_sensitive: false }
-  validates :password, presence: true, length: { minimum: 6 }
+  validates :password, length: { minimum: 6 }
   validates :password_confirmation, presence: true
+
+#these validate lines automatically create the user error messages stored in @user.errors
+#removed presence: true, from the validates :password line b/c already testing for that in
+#the line above has_secure_password
   
   private
     
