@@ -46,10 +46,26 @@ describe "Authentication" do
       it { should have_link('Sign out', href: signout_path) }
       
       it { should_not have_link('Sign in', href: signin_path) }
+      
+      describe "submitting unnecssary actions to User controller" do
+        
+        describe "submitting NEW action to User controller" do
+          before { get new_user_path }
+          specify { response.should redirect_to(root_path) }
+        end
+        
+        describe "submitting CREATE action to User controller" do
+          before { post users_path }
+          specify { response.should redirect_to(root_path) }
+        end
+
+      end # submitting unnecessary actions to User controller
     
       describe "followed by signout" do
         before { click_link 'Sign out' }
         it { should have_link('Sign in') }
+        it { should_not have_link('Profile') }
+        it { should_not have_link('Settings') }
       end
     
     end # with valid information
@@ -70,10 +86,27 @@ describe "Authentication" do
         end
         
         describe "after signing in" do
-          it "should render the desired protected page" do
+
+          it "should friendly forward/render the desired protected page" do
             page { should have_selector('title', text: 'Edit user') }
           end
-        end
+          
+          describe "after signing in again" do
+            before do
+              visit signin_path
+              fill_in "Email",    with: user.email
+              fill_in "Password", with: user.password
+              click_button "Sign in"
+            end
+            
+            describe "should not friendly forward again" do
+              it { should_not have_selector('title', text: 'Edit user') }
+              it { should have_selector('h1', text: user.name) }
+            end
+            
+          end # after signing in again
+            
+        end # after signing in
         
       end # when attempting to visit a protected page
       

@@ -34,6 +34,15 @@ describe User do
     before { @user.toggle!(:admin) }
     it { should be_admin }
   end
+  
+  describe "accessible attributes" do
+    it "should not allow access to 'admin' attribute" do
+      expect do
+        User.new(name: "User2", email: "user2@example.com", password: "foobar",
+password_confirmation: "foobar", admin: true)
+      end.should raise_error(ActiveModel::MassAssignmentSecurity::Error)
+    end    
+  end
 
   describe "when does not respond to authenticate method" do
     it { should respond_to(:authenticate) }
