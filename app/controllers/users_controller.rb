@@ -1,9 +1,11 @@
 class UsersController < ApplicationController
+  before_filter :signed_in_user,  only: [:index, :edit, :update]
+  before_filter :correct_user,    only: [:edit, :update]
+  before_filter :admin_user,      only: :destroy
 
   def show 
     @userToShow = User.find(params[:id])
-    
-# I really want to change the rest of these @users to things more descriptive
+#---> can I change the rest of these @users to things more descriptive?
   end
 
   def new
@@ -15,23 +17,60 @@ class UsersController < ApplicationController
     if @user.save
       sign_in @user
       flash[:success] = "Welcome to the Sample App!"
-#flash is a magic word
-#QQ: why does this not persist - how does user_path, which is show user, know 
-#after a reload not to redo the flash message?
-#AA: b/c nothing gets saved between reloads [correction: not reloads, but *redirects*] 
-#except the database -- 
-#every reload [*redirect*] is like starting the program anew, that's why we can 
-#e.g. keep saying things like @user=User.new above without the prog 
-#getting confused - only one of these is called each time
-
-#also, success class styling is part of Bootstrap
 
       redirect_to @user
-#can we say redirect_to user_path here instead?
+#---> can we say redirect_to user_path here instead?
     else
       render 'new'
-#error messages get displayed here b/c render 'new' doesn't reload the page or
-#restart anything - the user object with error messages still exists
     end
+    
+  end # create
+  
+  def edit
+#    @user = User.find(params[:id])
+# no longer need this b/c it happens inside correct_user, called every time edit or update is called
+  end # edit
+  
+  def update
+    if @user.update_attributes(params[:user])
+# this line sends a hash -- :user is itself a hash within the params hash 
+      flash[:success] = "Profile updated!"
+      sign_in @user
+# ---> why do we need to sign in the user again?
+      redirect_to @user
+    else
+      render 'edit'
+    end
+    
+  end # update
+  
+  def index
+    @users = User.paginate(page: params[:page])
   end
-end
+  
+  def destroy
+    User.find(params[:id]).destroy
+    flash[:success] = "User destroyed"
+    redirect_to users_path
+  end
+  
+  private
+  
+    def signed_in_user
+      unless signed_in?
+        store_location
+        redirect_to signin_path, notice: "Please sign in." 
+      end
+    end
+    
+    def correct_user
+      @user = User.find(params[:id])
+      redirect_to(root_path) unless current_user?(@user)
+# ---> are the parens necessary around (root_path) ?
+    end
+    
+    def admin_user
+      redirect_to(root_path) unless current_user.admin?
+    end
+  
+end # Class UsersController

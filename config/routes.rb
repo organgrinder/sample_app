@@ -7,7 +7,7 @@ SampleApp::Application.routes.draw do
 #  this one no longer necessary now that we have the above
 
   root to: 'static_pages#home'
-#this is a special one that only works for the home page
+# this is a special one that only works for the home page
 
   match '/signup',  to: 'users#new'
   match '/signin', to: 'sessions#new'

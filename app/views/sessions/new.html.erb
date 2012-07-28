@@ -11,7 +11,7 @@
 			<%= label_tag :password %>
 			<%= password_field_tag :password, session[:password] %>
 			
-			<%= submit_tag "Sign in" %>
+			<%= submit_tag "Sign in", class: "btn btn-large btn-primary" %>
 
 <%# getting rid of the below required changing from a double-layer hash in %>
 <%# sessions_controler.rb to a single-layer hash %>
