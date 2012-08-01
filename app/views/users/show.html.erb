@@ -1,5 +1,7 @@
 <% provide(:title, @userToShow.name) %>
+
 <div class="row">
+
 	<aside class="span4">
 		<section>
 			<h1>
@@ -8,4 +10,24 @@
 			</h1>
 		</section>
 	</aside>
+
+	<div class="span8">
+		<% if @userToShow.microposts.any? %>
+			<h3>Microposts (<%= @userToShow.microposts.count %>)</h3>
+
+			<ol class="microposts">
+				<%= render @microposts %>
+<%# automatically renders each of the items in @microposts %>
+<%# BUT LOOKS FOR A MICROPOST PARTIAL TO DO SO %>
+<%# and looks for it in the specially-named folder/file views/microposts/_micropost %>
+<%# fails if the partial doesn't exist %>
+			</ol>
+			
+			<%= will_paginate @microposts %>
+<%# have to specify microposts here %>
+<%# if we didn't, it would assume we were paginating users, since we are in users controller %>
+
+		<% end %>
+	</div>
+
 </div>

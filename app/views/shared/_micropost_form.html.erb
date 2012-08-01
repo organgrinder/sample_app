@@ -1,0 +1,21 @@
+<%= form_for(@micropost) do |f| %>
+
+	<%= render 'shared/error_messages', object: f.object %>
+<%#---> figure out how to move this to somewhere more logical %>
+
+<%# because we are in a form_for related to @microposts, f.object means @microposts %>
+
+<%# if error_messages is a partial that's used here but nowhere else, 
+# we can just use vars inside the partial called by render that are valid here.  
+# BUT if we want to use error_messages in multiple places, 
+# then we have to treat the render call not like it just 
+# inserts code here, but like it is a real method that takes vars 
+# and it takes them as a hash as in object: f.object %>
+
+	<div class='field'>
+		<%= f.text_area :content, placeholder: "Compose new micropost..." %>
+	</div>
+
+	<%= f.submit "Post", class: "btn btn-large btn-primary" %>
+
+<% end %>

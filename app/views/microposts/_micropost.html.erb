@@ -1,0 +1,16 @@
+<%# this needs to be in /views/microposts b/c it is called with the clever 
+# 'render @microposts' rather than simply calling a simple partial, like
+# 'render 'fields'%>
+
+<li>
+	<span class="content"><%= micropost.content %></span>
+	<span class="timestamp">Posted at <%= micropost.created_at.strftime("%X %p (UTC) on %x") %>.</span>
+	<% if current_user?(micropost.user) %>
+		<%= link_to "delete", micropost, 	method: :delete, 
+											data: { confirm: "You sure?" },
+											title: micropost.content %>
+<%#---> not sure what the title: tag does -- removing it seems to have no effect; 
+# removal is visible in the html, but link works just the same %>
+
+	<% end %>
+</li>

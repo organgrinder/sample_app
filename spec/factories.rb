@@ -9,6 +9,11 @@ FactoryGirl.define do
       admin true
     end
     
-  end # factory :user do
+  end # factory :user
   
-end # FactoryGirl.define do
+  factory :micropost do
+    content "Hello bitches"
+    user
+  end
+  
+end # FactoryGirl.define

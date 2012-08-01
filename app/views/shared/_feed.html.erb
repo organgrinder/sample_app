@@ -1,0 +1,12 @@
+<% if @feed_items.any? %>
+<%# @feed_items is created in the static pages controller%>
+
+	<ol class="microposts">
+		<%= render partial: 'shared/feed_item', collection: @feed_items %>
+<%# passing :collection parameter with the feed items causes render to use the given partial (’feed_item’ in this case) to render each item in the collection %>
+
+	</ol>
+	
+	<%= will_paginate @feed_items %>
+	
+<% end %>

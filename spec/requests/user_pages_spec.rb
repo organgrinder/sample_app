@@ -5,7 +5,8 @@ describe "User pages" do
 
   describe "signup page" do
     before { visit signup_path }
-#---> why say before here?  why not just say visit signup_path?
+# say 'before' here so the visit happens before each of the following examples
+# it's equivalent to before(:each)
     
     it { should have_selector('h1',    text: 'Sign up') }
     it { should have_selector('title', text: full_title('Sign up')) }
@@ -14,11 +15,21 @@ describe "User pages" do
   
   describe "profile page" do
     let(:user1) { FactoryGirl.create(:user) }
+    let!(:m1) { FactoryGirl.create(:micropost, user: user1, content: "Fuck") }
+    let!(:m2) { FactoryGirl.create(:micropost, user: user1, content: "Ass") }
+    
     before { visit user_path(user1) }
 
     it { should have_selector('h1',    text: user1.name) }
     it { should have_selector('title', text: user1.name) }
-  end
+    
+    describe "microposts" do
+      it { should have_content(m1.content) }
+      it { should have_content(m2.content) }
+      it { should have_content(user1.microposts.count) }
+    end
+    
+  end # profile page
   
   describe "signup" do
     before { visit signup_path }

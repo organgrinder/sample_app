@@ -8,8 +8,11 @@
 # set up this form to submit a PUT request instead of a POST request --
 # this actually happens through a hidden input inside the form that looks like this:
 # input name="_method" type="hidden" value="put" %>
+
+<%# ALSO, in here, f.object is the object that this form_for is for, 
+# i.e. it's the obj we're building %>
 			
-			<%= render 'shared/error_messages' %>
+			<%= render 'shared/error_messages', object: f.object %>
 			<%= render 'fields', f: f %>
 			
 		    <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>

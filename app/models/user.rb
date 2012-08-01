@@ -12,6 +12,7 @@
 class User < ActiveRecord::Base
   attr_accessible :email, :name, :password, :password_confirmation
   has_secure_password
+  has_many :microposts, dependent: :destroy
 
 # has_secure_password automatically creates "validates"-type tests for password_digest field in the db
   
@@ -29,6 +30,11 @@ class User < ActiveRecord::Base
 # removed presence: true, from the validates :password line b/c already testing for that in
 # the line above has_secure_password
   
+  def feed
+    #preliminary
+    Micropost.where("user_id = ?", id)
+  end
+
   private
     
     def create_remember_token

@@ -6,25 +6,33 @@ class UsersController < ApplicationController
 
   def show 
     @userToShow = User.find(params[:id])
-#---> can I change the rest of these @users to things more descriptive?
+    @microposts = @userToShow.microposts.paginate(page: params[:page])
   end
 
   def new
     @user = User.new
+# must be @user, nothing else, b/c it's used in a form_for
+
   end
   
   def create
     @user = User.new(params[:user])
+# must be @user, nothing else, b/c otherwise the form_for that gets called
+# in the else clause via 'render 'new'' gets screwed up
+#---> not sure why
+
     if @user.save
       sign_in @user
       flash[:success] = "Welcome to the Sample App!"
-
+      
       redirect_to @user
-#---> can we say redirect_to user_path here instead?
+# cannot say redirect_to user_path here instead--b/c user_path is meaningless
+# we could say redirect_to user_path(@user)
+
     else
       render 'new'
     end
-    
+
   end # create
   
   def edit
@@ -37,7 +45,8 @@ class UsersController < ApplicationController
 # this line sends a hash -- :user is itself a hash within the params hash 
       flash[:success] = "Profile updated!"
       sign_in @user
-# ---> why do we need to sign in the user again?
+# believe we need to sign in the user again b/c update_attributes invokes a save 
+# (which we know resets the remember token)
       redirect_to @user
     else
       render 'edit'
@@ -48,6 +57,8 @@ class UsersController < ApplicationController
   def index
     flash[:success] = "Remote IP is: #{request.remote_ip}" if request.get?
     @users = User.paginate(page: params[:page])
+# instance vars like @users link actions and views
+# when defined here, they are automatically available in the index.html.erb view
   end
   
   def destroy
@@ -58,17 +69,10 @@ class UsersController < ApplicationController
   
   private
   
-    def signed_in_user
-      unless signed_in?
-        store_location
-        redirect_to signin_path, notice: "Please sign in." 
-      end
-    end
-    
     def correct_user
       @user = User.find(params[:id])
-      redirect_to(root_path) unless current_user?(@user)
-# ---> are the parens necessary around (root_path) ?
+      redirect_to root_path unless current_user?(@user)
+# parens not necessary around (root_path)
     end
     
     def admin_user

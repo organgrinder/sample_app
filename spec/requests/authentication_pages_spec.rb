@@ -129,6 +129,22 @@ describe "Authentication" do
         
       end # in the Users controller
       
+      describe "in the Microposts controller" do
+        
+        describe "submitting to the create action" do
+          before { post microposts_path }
+# micropost[S]_path
+          specify { response.should redirect_to(signin_path) }
+        end
+        
+        describe "submitting to the destroy action" do
+          before { delete micropost_path(FactoryGirl.create(:micropost)) }
+#micropost[NO S]_path(micropost)
+          specify { response.should redirect_to(signin_path) }
+        end
+        
+      end # in the Microposts controller
+      
     end # for non-signed-in users
     
     describe "as wrong user" do
