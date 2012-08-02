@@ -13,6 +13,21 @@ describe "User pages" do
     
   end
   
+  describe "another user's profile page" do
+    let(:user1) { FactoryGirl.create(:user, name: "new user 1", email: "new@user1.email") }
+    let!(:m1) { FactoryGirl.create(:micropost, user: user1, content: "Fuck") }
+    let!(:m2) { FactoryGirl.create(:micropost, user: user1, content: "Ass") }
+    let(:user2) { FactoryGirl.create(:user, name: "new user 2", email: "new@user2.email") }
+    
+    before do
+      sign_in user2
+      visit user_path(user1)
+    end
+    
+    it { should_not have_link('delete') }
+    
+  end # another user's profile page
+  
   describe "profile page" do
     let(:user1) { FactoryGirl.create(:user) }
     let!(:m1) { FactoryGirl.create(:micropost, user: user1, content: "Fuck") }
@@ -28,6 +43,24 @@ describe "User pages" do
       it { should have_content(m2.content) }
       it { should have_content(user1.microposts.count) }
     end
+    
+    describe "pagination" do
+
+      before (:all) { 51.times { FactoryGirl.create(:micropost, user: user1) } }
+      before (:each) do
+        sign_in user1
+        visit user_path(user1)
+      end
+
+      it { should have_selector('div.pagination') }
+
+      it "should list each micropost" do
+        user1.microposts.paginate(page: 1).each do |mp|
+          page.should have_selector('li', text: mp.content)
+        end
+      end
+      
+    end # pagination
     
   end # profile page
   

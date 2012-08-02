@@ -32,6 +32,17 @@ describe "MicropostPages" do
       
     end # with valid information
     
+    describe "with overly-long words" do
+      
+      before do 
+        fill_in 'micropost_content', with: 'a'*35
+        click_button "Post"
+      end
+      it { should_not have_content('a'*35) }
+      it { should have_content('a'*30) }
+      
+    end # with overly-long words
+    
   end # micropost creation
   
   describe "micropost destruction" do

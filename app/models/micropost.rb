@@ -1,4 +1,7 @@
 class Micropost < ActiveRecord::Base
+  include MicropostsHelper
+  include ActionView::Helpers
+
   attr_accessible :content
   belongs_to :user
   
@@ -7,5 +10,7 @@ class Micropost < ActiveRecord::Base
   
   default_scope order: 'microposts.created_at DESC'
 #DESC means descending
+
+  before_save { |mp| mp.content = wrap(content) }
 
 end

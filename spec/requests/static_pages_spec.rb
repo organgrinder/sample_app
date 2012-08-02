@@ -19,18 +19,38 @@ describe "Static pages" do
     
     describe "for signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
-      
+                  
       before do
-        FactoryGirl.create(:micropost, user: user, content: "Hello bitches")
-        FactoryGirl.create(:micropost, user: user, content: "Fuck ass")
+#        FactoryGirl.create(:micropost, user: user, content: "Hello bitches")
+#        FactoryGirl.create(:micropost, user: user, content: "Fuck ass")
+# can't put these outside the 'before do'
+# believe everything either has to be a 'let' or it has to be inside a 'before { }'
+
+        FactoryGirl.create(:micropost, user: user, content: "Hello bitches microposts")
         sign_in user
         visit root_path
       end
       
+      describe "sidebar microposts count singular" do
+        it { should have_selector("span.mp", text: '1 micropost') }
+        it { should_not have_selector("span.mp", text: 'microposts') }
+# labeled the pluralized word with the special class 'mp' just so it can be tested for like this
+      end      
+            
+      describe "sidebar microposts count plural" do
+        before do
+          FactoryGirl.create(:micropost, user: user, content: "Fuck ass")
+          visit root_path
+        end
+        it { should have_selector("span.mp", text: '2 microposts') }
+      end
+      
       it "should render the user's feed" do
+        FactoryGirl.create(:micropost, user: user, content: "Fuck ass")
+        visit root_path
         user.feed.each do |item|
           page.should have_selector("li##{item.id}", text: item.content)
-#---> don't entirely get this line see tutorial section ~10.40
+# first '#' is Capybara for an item id--then it's string interp to get the item id we want
         end
       end
         
@@ -61,6 +81,7 @@ describe "Static pages" do
 
     it_should_behave_like "all static pages"
   end
+  
   it "should have the right links on the right pages" do
     visit root_path
     click_link "About"
@@ -72,7 +93,7 @@ describe "Static pages" do
     click_link "Home"
     click_link "Sign up now!"
     page.should have_selector 'title', text: full_title('Sign up')
-    click_link "sample app"
+    click_link "twutter"
     page.should have_selector 'title', text: full_title('')
   end
 end

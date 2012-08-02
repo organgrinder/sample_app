@@ -7,6 +7,7 @@
 <span>
 	<%= link_to "view my profile", current_user %>
 </span>
-<span>
+<span class='mp'>
 	<%= pluralize(current_user.microposts.count, "micropost") %>
+<%# this provides the number and the label, properly pluralized %>
 </span>
