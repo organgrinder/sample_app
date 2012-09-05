@@ -1,8 +1,16 @@
 SampleApp::Application.routes.draw do
 
-  resources :users
-  resources :sessions, only: [:new, :create, :destroy]
-  resources :microposts, only: [:create, :destroy]
+  resources :users do
+    member do
+      get :following, :followers
+    end
+  end
+# provides for user/7/following
+
+  resources :sudokus
+  resources :sessions, only:      [:new, :create, :destroy]
+  resources :microposts, only:    [:create, :destroy]
+  resources :relationships, only: [:create, :destroy] 
 
 #  get "users/new"
 #  this one no longer necessary now that we have the above
@@ -10,6 +18,7 @@ SampleApp::Application.routes.draw do
   root to: 'static_pages#home'
 # this is a special one that only works for the home page
 
+  match '/sudoku',  to: 'sudokus#new'
   match '/signup',  to: 'users#new'
   match '/signin', to: 'sessions#new'
   match '/signout', to: 'sessions#destroy', via: :delete

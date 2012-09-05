@@ -1,0 +1,12 @@
+<h3>Solving puzzle "<%= @sudoku.content %>"</h3>
+
+<%# would like to use something like this here: 
+<%= render partial: 'grid', collection: @sudoku.big_grid %> 
+
+<%= render 'big_grid' %>
+	
+<%= form_for(@sudoku) do |f| %>
+				
+    <%= f.submit "Solve next number", class: "btn btn-large btn-primary" %>
+
+<% end %>

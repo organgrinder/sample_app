@@ -11,10 +11,31 @@
 
 class User < ActiveRecord::Base
   attr_accessible :email, :name, :password, :password_confirmation
-  has_secure_password
-  has_many :microposts, dependent: :destroy
 
+  has_secure_password
 # has_secure_password automatically creates "validates"-type tests for password_digest field in the db
+
+  has_many :microposts, dependent: :destroy
+# b/c we're in the User class, this line tells Rails that it can 
+# look up a User's microposts by the 'user_id' field in the 'microposts' table 
+
+  has_many :relationships, foreign_key: "follower_id", dependent: :destroy
+# b/c there is no 'follower_id' class, we need this line to tell Rails
+# to look up a User's relationships by the 'follower_id' field in the 
+# 'relationships' table
+
+  has_many :followed_users, through: :relationships, source: :followed
+# 'source: :followed' tells Rails that followed_users are found in the
+# 'followed_id' column of the 'relationships' table, rather than the
+# 'followed_users_id' column, which it would otherwise assume
+# (Rails already knows to look up users in the relationships table 
+# by the 'follower_id' field b/c of the previous line)
+
+  has_many :reverse_relationships,  foreign_key: "followed_id",
+                                    class_name: "Relationship",
+                                    dependent: :destroy
+                                    
+  has_many :followers, through: :reverse_relationships, source: :follower
   
   before_save { |user| user.email = email.downcase }
   before_save :create_remember_token
@@ -33,6 +54,18 @@ class User < ActiveRecord::Base
   def feed
     #preliminary
     Micropost.where("user_id = ?", id)
+  end
+  
+  def following?(other_user)
+    relationships.find_by_followed_id(other_user.id)
+  end
+  
+  def follow!(other_user)
+    relationships.create!(followed_id: other_user.id)
+  end
+  
+  def unfollow!(other_user)
+    relationships.find_by_followed_id(other_user.id).destroy
   end
 
   private

@@ -1,0 +1,16 @@
+<% provide(:title, 'Sign up') %>
+<h1>Sudoku Solver</h1>
+<div class="row">
+	<div class="span6 offset3">
+		<%= form_for(@sudoku) do |f| %>
+						
+			<%= f.label :content, "Name your puzzle" %>
+			<%= f.text_field :content %>
+						
+		    <%= f.submit "Create puzzle", class: "btn btn-large btn-primary" %>
+		
+		<% end %>
+
+
+	</div>
+</div>

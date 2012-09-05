@@ -9,6 +9,11 @@ class UsersController < ApplicationController
     @microposts = @userToShow.microposts.paginate(page: params[:page])
   end
 
+  def method_name
+    new
+    @u
+  end
+
   def new
     @user = User.new
 # must be @user, nothing else, b/c it's used in a form_for
