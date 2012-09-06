@@ -7,7 +7,15 @@
 	<%= render 'big_grid' %>
 	<%= render 'rules_used' %>
 </div>
-	
+
+<% if (@arra) %>
+	<% @arra.each do |i| %>
+		<%= i.value %>
+	<% end %>
+<% else %>
+	<%= "DNE" %>
+<% end %>
+
 <%= form_for(@sudoku) do |f| %>
 				
     <%= f.submit "Solve next number", class: "btn btn-large btn-primary" %>

@@ -1,5 +1,7 @@
 STILL LEFT TO DO
 
+- make numbers into objects with value, updated_this_round [and later -> possible_values]
+
 - highlight last number solved
 
 - add buttons to solve 5 numbers at once, solve entire puzzle

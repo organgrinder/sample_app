@@ -204,6 +204,29 @@ class Sudoku < ActiveRecord::Base
                    8,0,7, 3,0,1, 4,6,0,
                    0,0,0, 0,2,4, 8,0,0,
                    0,0,0, 8,0,0, 9,1,0]
+                   
+      # self.big_grid[80]=6
+
+      # 5.times do |i|
+      #   self.big_grid[81][i]=Numer.new
+      #   self.big_grid[81][i].value=i^2
+      # end
+
   end # fill_in_grid
         
-end # Class Sudoku
+end # class Sudoku
+
+class Number
+
+  @value
+
+  def value
+    @value
+  end
+  
+  def value=(value)
+    @value = value
+  end
+
+end # class Number
+
