@@ -14,7 +14,7 @@ class Sudoku < ActiveRecord::Base
         if (possible_spots_in_cube(number,current_cube_number)==1)
           winner_cube_number=current_cube_number
           winner_location=first_spot_in_cube(number,winner_cube_number)
-          big_grid[winner_location]=number+10
+          big_grid[winner_location]=number
           return "next location solved will be: " + winner_location.to_s
         end
       end

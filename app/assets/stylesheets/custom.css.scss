@@ -1,5 +1,42 @@
 @import "bootstrap";
 
+/* Sudoku */
+
+.outer {
+	cell-padding: 5;
+	cell-margin: 0;
+	border: 1px;
+	border-collapse: collapse;
+}
+
+.inner {
+	font-size: 1.7em;
+	cell-padding: 5px;
+	margin: -2px;
+	border: 2px solid black;
+	border-collapse: collapse;
+	td {
+		border: 1px solid #bbb;
+		width: 30px;
+		height: 30px;
+		text-align: center;
+	}
+}
+
+.newly-solved {
+	color: red;
+	font-weight: bold;
+}
+
+.table-bordered {
+	border: 2px solid #bbb;
+}
+
+#big_grid_table {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
 /* mixins, variables, etc. */
 
 $grayMediumLight: #eaeaea;

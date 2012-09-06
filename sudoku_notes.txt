@@ -1,0 +1,20 @@
+STILL LEFT TO DO
+
+- highlight last number solved
+
+- add buttons to solve 5 numbers at once, solve entire puzzle
+
+- implement more than 1 rule
+
+- describe which rule is in effect for each solved number
+
+- allow user to create own puzzle
+
+- create random puzzle or pull on in from the web (currently it just solves 1 puzzle hard coded into the app)
+
+
+
+
+DONE
+
+- do layout with CSS rather than old school tags

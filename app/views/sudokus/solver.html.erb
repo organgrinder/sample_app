@@ -1,9 +1,12 @@
-<h3>Solving puzzle "<%= @sudoku.content %>"</h3>
+<h3>Solving puzzle <%= @sudoku.content %></h3>
 
 <%# would like to use something like this here: 
 <%= render partial: 'grid', collection: @sudoku.big_grid %> 
 
-<%= render 'big_grid' %>
+<div class="row" id="big_grid_table">
+	<%= render 'big_grid' %>
+	<%= render 'rules_used' %>
+</div>
 	
 <%= form_for(@sudoku) do |f| %>
 				

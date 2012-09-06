@@ -13,11 +13,10 @@ class SudokusController < ApplicationController
   
   def update
     @sudoku = Sudoku.find(params[:id])
-    @sudoku.update_attributes(params[:sudoku])
     @sudoku.apply_rules
-    render 'sudokus/solver'
     @sudoku.save
-    #saving after render b/c solver reverts the +10 back so only 1 number appears red each time
+    render 'sudokus/solver'
+
   end
   
 end
