@@ -1,0 +1,27 @@
+<div class="row">
+	<div class="span2 offset1">
+		<%= form_tag @sudoku, method: :get do %>
+	
+			<%= submit_tag "Solve Next Number", class: "btn btn-large btn-primary" %>
+			<%= hidden_field_tag "solve_this_many", 1 %>
+	
+		<% end %>
+	</div>
+
+	<div class="span2 offset1">
+		<%= form_tag @sudoku, method: :get do %>
+	
+			<%= submit_tag "Solve Next 5 Numbers", class: "btn btn-large btn-primary" %>
+			<%= hidden_field_tag "solve_this_many", 5 %>
+	
+		<% end %>
+	</div>
+	<div class="span2 offset1">
+		<%= form_tag @sudoku, method: :get do %>
+	
+			<%= submit_tag "Solve Entire Puzzle", class: "btn btn-large btn-primary" %>
+			<%= hidden_field_tag "solve_this_many", "all" %>
+	
+		<% end %>
+	</div>
+</div>

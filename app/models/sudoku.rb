@@ -23,6 +23,13 @@ class Sudoku < ActiveRecord::Base
   return false
   end
 
+  def solved
+    self.big_grid.each do |item|
+      return false if !item[:value]
+    end
+    return true
+  end
+
   def clear_updated_last
     self.big_grid.each do |item|
       item[:updated_last]=false

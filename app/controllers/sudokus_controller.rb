@@ -11,9 +11,16 @@ class SudokusController < ApplicationController
     render 'sudokus/solver'
   end
   
-  def update
+  def show
     @sudoku = Sudoku.find(params[:id])
-    @message = @sudoku.apply_rules
+    
+    if params[:solve_this_many]=="all"
+      @sudoku.apply_rules while !@sudoku.solved
+    else    
+      params[:solve_this_many].to_i.times do
+        @sudoku.apply_rules
+      end
+    end
     
     render 'sudokus/solver'
     @sudoku.clear_updated_last

@@ -1,8 +1,5 @@
 STILL LEFT TO DO
 
-- add buttons to solve 5 numbers at once, solve entire puzzle
-	- this requires some reading about ordinary forms, rather than form_for's
-
 - implement more than 1 rule
 
 - describe which rule is in effect for each solved number
@@ -15,6 +12,9 @@ STILL LEFT TO DO
 
 
 DONE
+
+- add buttons to solve 5 numbers at once, solve entire puzzle
+	- this requires some reading about ordinary forms, rather than form_for's
 
 - do layout with CSS rather than old school tags
 
