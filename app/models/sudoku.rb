@@ -11,18 +11,25 @@ class Sudoku < ActiveRecord::Base
       number=number_index+1
       winner_cube_number=-1
       9.times do |current_cube_number|
-        if (possible_spots_in_cube(number,current_cube_number)==1)
+        if (all_possible_spots_in_cube(number,current_cube_number)==1)
           winner_cube_number=current_cube_number
-          winner_location=first_spot_in_cube(number,winner_cube_number)
-          big_grid[winner_location]=number
-          return "next location solved will be: " + winner_location.to_s
+          winner_location=first_possible_spot_in_cube(number,winner_cube_number)
+          big_grid[winner_location][:value]=number
+          big_grid[winner_location][:updated_last]=true
+          return "just filled in: " + number.to_s + "at location" + winner_location.to_s
         end
       end
     end
   return false
   end
 
-  def first_spot_in_cube(number,cube_number)
+  def clear_updated_last
+    self.big_grid.each do |item|
+      item[:updated_last]=false
+    end
+  end
+
+  def first_possible_spot_in_cube(number,cube_number)
     locations_in_cube=locations_in_cube(cube_number)
     locations_in_cube.each do |location|
       return location if (can_go_in_spot(number,location))
@@ -30,19 +37,7 @@ class Sudoku < ActiveRecord::Base
     return 81
   end
   
-  # def spot_as_a_number(col,row)
-  #   col+row*9
-  # end
-  
-  # def col_from_a_number(number)
-  #   (number-number%9)/9
-  # end
-  # 
-  # def row_from_a_number(number)
-  #   number%9
-  # end
-
-  def possible_spots_in_cube(number,cube_number)
+  def all_possible_spots_in_cube(number,cube_number)
     spots=0
     locations_in_cube=locations_in_cube(cube_number)
     locations_in_cube.each do |location|
@@ -55,47 +50,8 @@ class Sudoku < ActiveRecord::Base
     return !( column_by_location(location).include?(number) || 
               row_by_location(location).include?(number) ||
               cube_by_location(location).include?(number) ||
-              big_grid[location]>0)
+              big_grid[location][:value])
   end
-
-  # def cube_row(cube_num)
-  #   return 0 if (cube_num==1 || cube_num==2 || cube_num==3)
-  #   return 3 if (cube_num==4 || cube_num==5 || cube_num==6)
-  #   return 6 if (cube_num==7 || cube_num==8 || cube_num==9)
-  # end
-  # 
-  # def cube_col(cube_num)
-  #   return 0 if (cube_num==1 || cube_num==4 || cube_num==7)
-  #   return 3 if (cube_num==2 || cube_num==5 || cube_num==8)
-  #   return 6 if (cube_num==3 || cube_num==6 || cube_num==9)
-  # end
-  
-
-  # def cube(i,j)
-  #   return cubert(0,0) if (i<3 && j<3)
-  #   return cubert(0,3) if (i<3 && j>2 && j<6)
-  #   return cubert(0,6) if (i<3 && j>5)
-  #   return cubert(3,0) if (i>2 && i<6 && j<3)
-  #   return cubert(3,3) if (i>2 && i<6 && j>2 && j<6)
-  #   return cubert(3,6) if (i>2 && i<6 && j>5)
-  #   return cubert(6,0) if (i>5 && j<3)
-  #   return cubert(6,3) if (i>5 && j>2 && j<6)
-  #   return cubert(6,6) if (i>5 && i>5)
-  # end
-  # 
-  # def cubert(i,j)
-  #   cubert=[]
-  #   row=i
-  #   3.times do
-  #     col=j
-  #     3.times do
-  #       cubert.push(big_grid[row][col])
-  #       col+=1
-  #     end
-  #     row+=1
-  #   end
-  #   return cubert
-  # end
 
   def locations_in_cube(number)
     start_location=cube_start_location(number)
@@ -111,7 +67,33 @@ class Sudoku < ActiveRecord::Base
     return cube_locations
   end
 
+  def cube_by_location(location)
+    return cube_by_number(0) if (location%9<3 && location<27)
+    return cube_by_number(1) if (location%9>2 && location%9<6 && location<27)
+    return cube_by_number(2) if (location%9>5 && location<27)
+    return cube_by_number(3) if (location%9<3 && location>26 && location<54)
+    return cube_by_number(4) if (location%9>2 && location%9<6 && location>26 && location<54)
+    return cube_by_number(5) if (location%9>5 && location>26 && location<54)
+    return cube_by_number(6) if (location%9<3 && location>53)
+    return cube_by_number(7) if (location%9>2 && location%9<6 && location>53)
+    return cube_by_number(8) if (location%9>5 && location>53)
+  end
+
   def cube_by_number(number)
+    start_location=cube_start_location(number)
+    cube=Array.new(9)
+    9.times do |i|
+      cube[i]=big_grid[start_location][:value]
+      if (i%3==2) 
+        start_location+=7
+      else
+        start_location+=1
+      end
+    end
+    return cube
+  end
+  
+  def cube_objects_by_number(number)
     start_location=cube_start_location(number)
     cube=Array.new(9)
     9.times do |i|
@@ -138,18 +120,6 @@ class Sudoku < ActiveRecord::Base
     return start_location
   end
   
-  def cube_by_location(location)
-    return cube_by_number(0) if (location%9<3 && location<27)
-    return cube_by_number(1) if (location%9>2 && location%9<6 && location<27)
-    return cube_by_number(2) if (location%9>5 && location<27)
-    return cube_by_number(3) if (location%9<3 && location>26 && location<54)
-    return cube_by_number(4) if (location%9>2 && location%9<6 && location>26 && location<54)
-    return cube_by_number(5) if (location%9>5 && location>26 && location<54)
-    return cube_by_number(6) if (location%9<3 && location>53)
-    return cube_by_number(7) if (location%9>2 && location%9<6 && location>53)
-    return cube_by_number(8) if (location%9>5 && location>53)
-  end
-
   def row_by_number(number)
     return row_by_location(number*9)
   end
@@ -160,7 +130,11 @@ class Sudoku < ActiveRecord::Base
 
   def row_by_location(location)
     start_location=location-location%9
-    row=big_grid[start_location..(start_location+8)]
+    row=Array.new(9)
+    9.times do |i|
+      row[i]=big_grid[start_location][:value]
+      start_location+=1
+    end
     return row
   end
 
@@ -168,7 +142,7 @@ class Sudoku < ActiveRecord::Base
     start_location=location%9
     column=Array.new(9)
     9.times do |i|
-      column[i]=big_grid[start_location]
+      column[i]=big_grid[start_location][:value]
       start_location+=9
     end
     return column
@@ -177,23 +151,13 @@ class Sudoku < ActiveRecord::Base
   def apply_rules
     
     return rule_1
-    
-   # found=false
-   # 9.times do |i| 
-   #    9.times do |j|
-   #      if (self.big_grid[i][j]==0)
-   #        self.big_grid[i][j]=17
-   #        found=true
-   #        break
-   #      end
-   #    end
-   #    break if found
-   #  end
-    
+        
   end # apply_rules
   
   def fill_in_grid
-    self.big_grid=[0,4,3, 0,0,6, 0,0,0,
+    self.big_grid=Array.new(81)
+    
+    array_values=[0,4,3, 0,0,6, 0,0,0,
                    0,0,9, 2,1,0, 0,0,0,
                    0,6,8, 5,0,9, 2,0,3,
                      
@@ -204,29 +168,15 @@ class Sudoku < ActiveRecord::Base
                    8,0,7, 3,0,1, 4,6,0,
                    0,0,0, 0,2,4, 8,0,0,
                    0,0,0, 8,0,0, 9,1,0]
-                   
-      # self.big_grid[80]=6
 
-      # 5.times do |i|
-      #   self.big_grid[81][i]=Numer.new
-      #   self.big_grid[81][i].value=i^2
-      # end
+    81.times do |i| 
+      if (array_values[i]>0)     
+        self.big_grid[i]={ value: array_values[i] } 
+      else
+        self.big_grid[i]={}
+      end
+    end
 
   end # fill_in_grid
         
 end # class Sudoku
-
-class Number
-
-  @value
-
-  def value
-    @value
-  end
-  
-  def value=(value)
-    @value = value
-  end
-
-end # class Number
-

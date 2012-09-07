@@ -1,10 +1,7 @@
 STILL LEFT TO DO
 
-- make numbers into objects with value, updated_this_round [and later -> possible_values]
-
-- highlight last number solved
-
 - add buttons to solve 5 numbers at once, solve entire puzzle
+	- this requires some reading about ordinary forms, rather than form_for's
 
 - implement more than 1 rule
 
@@ -20,3 +17,7 @@ STILL LEFT TO DO
 DONE
 
 - do layout with CSS rather than old school tags
+
+- numbers are hashes so they have various characteristics that can change
+
+- last number solved gets highlighted

@@ -7,25 +7,17 @@ class SudokusController < ApplicationController
   def create
     @sudoku = Sudoku.new(params[:sudoku])
     @sudoku.fill_in_grid
-    @sudoku.save
+    @sudoku.save  
     render 'sudokus/solver'
   end
   
   def update
     @sudoku = Sudoku.find(params[:id])
-    @sudoku.apply_rules
-    @sudoku.save
+    @message = @sudoku.apply_rules
     
-    @arra=Array.new(5)
-    5.times do |i|
-      @arra[i]=Number.new
-      @arra[i].value=i
-    end
-
-    @number=Number.new
-    @number.value=28
     render 'sudokus/solver'
-
+    @sudoku.clear_updated_last
+    @sudoku.save
 
   end
   
