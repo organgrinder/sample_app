@@ -7,9 +7,14 @@
 			<%= f.label :content, "Name your puzzle" %>
 			<%= f.text_field :content %>
 						
-		    <%= f.submit "Create puzzle", class: "btn btn-large btn-primary" %>
+		    <%= f.submit class: "btn btn-large btn-primary", value: "Original Puzzle" %>
+			
+			<%= f.submit class: "btn btn-large btn-primary", value: "Random Puzzle" %>			
+			<%# the above button will automatically have name: "commit" included %>
+			
+			<%= f.submit class: "btn btn-large btn-primary", value: "Create Your Own" %>			
 		
 		<% end %>
-
+		
 	</div>
 </div>

@@ -16,7 +16,9 @@ class Sudoku < ActiveRecord::Base
           winner_location=first_possible_spot_in_cube(number,winner_cube_number)
           big_grid[winner_location][:value]=number
           big_grid[winner_location][:updated_last]=true
-          return "just filled in: " + number.to_s + "at location" + winner_location.to_s
+          return "Rule 1:  Pick a 3x3 cube and pick a number.  If there 
+          is only 1 spot in that cube where that number can go (based on numbers other numbers 
+          filled in, but not possibilities recorded), fill it in."
         end
       end
     end
@@ -24,6 +26,7 @@ class Sudoku < ActiveRecord::Base
   end
 
   def solved
+    return false if !self.big_grid
     self.big_grid.each do |item|
       return false if !item[:value]
     end
@@ -155,19 +158,44 @@ class Sudoku < ActiveRecord::Base
     return column
   end
 
+  def rule_2
+    return false
+    
+    # Pick a number and pick a cube.  If there are exactly 2 spots in the cube where that number can go, 
+    # record them in as possibilities.
+  end
+
+  def rule_3
+    return false
+    
+    # If a spot with a possibilty recorded has been filled in with a number, fill in the other spot where that 
+    # number was listed as a possibility.  Erase the possibilities.
+  end
+
+  def rule_3
+    return false
+    
+    # Pick a number and pick a cube.  If there is only spot in the cube where that number can go (considering
+    # numbers filled in AND possibilities recorded), fill it in in that spot.
+  end
+
   def apply_rules
     
-    return rule_1
+    return rule_1 || rule_2
         
   end # apply_rules
   
-  def fill_in_grid
-    self.big_grid=Array.new(81)
+  def fill_in_grid(puzzle)
     
-    array_values=[0,4,3, 0,0,6, 0,0,0,
+    return if puzzle=="Create Your Own"
+
+    self.big_grid=Array.new(81)
+
+    if puzzle=="Original Puzzle"
+      array_values=[0,4,3, 0,0,6, 0,0,0,
                    0,0,9, 2,1,0, 0,0,0,
                    0,6,8, 5,0,9, 2,0,3,
-                     
+                   
                    5,0,0, 9,3,0, 1,0,0,
                    6,0,0, 0,7,0, 0,0,9,
                    0,0,4, 0,6,2, 0,0,8,
@@ -175,6 +203,15 @@ class Sudoku < ActiveRecord::Base
                    8,0,7, 3,0,1, 4,6,0,
                    0,0,0, 0,2,4, 8,0,0,
                    0,0,0, 8,0,0, 9,1,0]
+    elsif puzzle=="Random Puzzle"
+      puzzles=[]
+        File.open("app/models/example_puzzles.txt") do |file|
+        while @message=file.gets
+          puzzles << @message.chomp.split(//).map { |s| s.to_i }
+        end
+      end
+      array_values = puzzles[rand(puzzles.length)]
+    end
 
     81.times do |i| 
       if (array_values[i]>0)     

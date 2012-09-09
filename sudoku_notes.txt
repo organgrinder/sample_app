@@ -2,16 +2,14 @@ STILL LEFT TO DO
 
 - implement more than 1 rule
 
-- describe which rule is in effect for each solved number
-
 - allow user to create own puzzle
-
-- create random puzzle or pull on in from the web (currently it just solves 1 puzzle hard coded into the app)
-
-
 
 
 DONE
+
+- create random puzzle or pull on in from the web (currently it just solves 1 puzzle hard coded into the app)
+
+- describe which rule is in effect for each solved number
 
 - add buttons to solve 5 numbers at once, solve entire puzzle
 	- this requires some reading about ordinary forms, rather than form_for's
@@ -21,3 +19,8 @@ DONE
 - numbers are hashes so they have various characteristics that can change
 
 - last number solved gets highlighted
+
+
+QUESTIONS FOR SETH
+
+- what's up with routing?  how to make the right request to go the right place - the right action in the right controller - I get sometimes how it works, but e.g. s/t I feel like I want to specify whether I'm doing INDEX, NEW, SHOW or EDIT instead of just GET

@@ -2,7 +2,9 @@
 
 <div class="row" id="big_grid_table">
 	<%= render 'big_grid' %>
-	<%= render 'rules_used' %> 
+	<% if @rules_used %>
+		<%= render 'rules_used' %> 
+	<% end %>
 </div>
 
 <% if !@sudoku.solved %>
