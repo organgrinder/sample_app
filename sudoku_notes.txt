@@ -2,12 +2,20 @@ STILL LEFT TO DO
 
 - implement more than 1 rule
 
-- allow user to create own puzzle
+---------------------------------
+
+BONUS FEATURES
+
+- test for validity of a user-created puzzle
+
+- tell when puzzle can't be solved
 
 
 DONE
 
-- create random puzzle or pull on in from the web (currently it just solves 1 puzzle hard coded into the app)
+- allow user to create own puzzle
+
+- create random puzzle or pull on in from the web
 
 - describe which rule is in effect for each solved number
 

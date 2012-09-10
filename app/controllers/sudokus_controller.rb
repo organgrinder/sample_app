@@ -3,41 +3,71 @@ class SudokusController < ApplicationController
   def new
     @sudoku = Sudoku.new
   end
-  
+
   def create
-    @sudoku = Sudoku.new(params[:sudoku])
-    @sudoku.fill_in_grid(params[:commit])
+    @sudoku = 
+      case params[:create]
+      when "original"
+        Sudoku.createDefault(params[:sudoku])
+      when "random"
+        Sudoku.createRandom(params[:sudoku])
+      else
+        Sudoku.create(params[:sudoku])
+      end
+
+    if @sudoku.big_grid.nil?
+      redirect_to edit_sudoku_path(@sudoku)
+    else
+      redirect_to sudoku_path(@sudoku)
+    end
+  end
+  
+  def edit
+    @sudoku = Sudoku.find(params[:id])
+  end
+  
+  def solve
+    @sudoku = Sudoku.find(params[:id])
+    rules_used = []
+    locations_updated = []
+    # try assigning both of these on 1 line 
+    if params[:solve_this_many] == "all"
+      until @sudoku.solved
+        rule_results = @sudoku.apply_rules
+        
+        # apply_rules returned false means rules didn't work
+        break unless rule_results
+        
+        rules_used.push(rule_results[:rule_text]) unless rules_used.include?(rule_results[:rule_text])
+        locations_updated.push(rule_results[:location])
+      end
+    else    
+      params[:solve_this_many].to_i.times do
+        rule_results = @sudoku.apply_rules
+        
+        # apply_rules returned false means rules didn't work
+        break unless rule_results
+        
+        rules_used.push(rule_results[:rule_text]) unless rules_used.include?(rule_results[:rule_text])
+        locations_updated.push(rule_results[:location])
+      end
+    end
+    
     @sudoku.save
-    render 'sudokus/solver'
+    
+    flash[:rules] = rules_used
+    flash[:locations] = locations_updated
+    
+    redirect_to sudoku_path(@sudoku)
   end
   
   def show
     @sudoku = Sudoku.find(params[:id])
-    @rules_used=[]
-    if params[:solve_this_many]=="all"
-      while (!@sudoku.solved) 
-        rule=@sudoku.apply_rules
-        if !rule # apply_rules returned false means rules didn't work
-          break
-        else
-          @rules_used.push(rule) unless @rules_used.include?(rule)
-        end
-      end
-    else    
-      params[:solve_this_many].to_i.times do
-        rule=@sudoku.apply_rules
-        if !rule # apply_rules returned false means rules didn't work
-          break
-        else
-          @rules_used.push(rule) unless @rules_used.include?(rule)
-        end
-      end
-    end
     
-    render 'sudokus/solver'
-    @sudoku.clear_updated_last
-    @sudoku.save
-
+    @rules_used = flash[:rules] || []
+    @locations_updated = flash[:locations] || []
+    flash.delete(:rules)
+    flash.delete(:locations)
   end
   
   def update
@@ -49,7 +79,8 @@ class SudokusController < ApplicationController
       end
     end
     @sudoku.save
-    render 'sudokus/solver'
+    
+    redirect_to sudoku_path(@sudoku)
   end
   
 end

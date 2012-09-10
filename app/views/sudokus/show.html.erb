@@ -1,0 +1,39 @@
+<h3>Solving puzzle <%= @sudoku.content %></h3>
+
+<div class="row" id="big_grid_table">
+	<%= render 'big_grid' %>
+	
+	<% if @rules_used.any? %>
+	<div class="span8 offset0" id="rules-applied">
+		<h3>Rules applied:</h3>
+
+		<%= render :partial => "rule_used", :collection => @rules_used %>
+	</div>
+	<% end %>
+</div>
+
+<% if !@sudoku.solved %>
+	<%= render 'solver_buttons' %>
+<% else %>
+	<h3>Puzzle Solved!</h3>
+<% end %>
+
+<!-- Display big_grid for debugging purposes -->
+
+<!-- <% if (@sudoku.big_grid) %>
+	
+	<% 81.times do |i| %>
+
+		<% if ((i%9)==0) %>
+			<br>
+		<% end %>
+		<% if (@sudoku.big_grid[i][:value]) %>
+			<%= @sudoku.big_grid[i][:value] %>
+		<% else %>
+			0
+		<% end %>
+	<% end %>
+<% else %>
+	<%= "DNE" %>
+<% end %> -->
+

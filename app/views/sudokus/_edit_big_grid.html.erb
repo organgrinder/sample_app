@@ -1,0 +1,38 @@
+<div class="span4 offset1">
+
+<%= form_tag @sudoku, method: :put do %>
+
+	<table class="outer">
+		<tr>
+			<% 9.times do |i| %>
+				<td>
+					<table class="inner">
+						<tr>
+							<% j=0 %>
+							<% @sudoku.cube_locations_by_number(i).each do |location| %>
+								<td>
+									<%= text_field_tag location%>
+								</td>
+								<% if (j==2 || j==5)%>
+									</tr><tr>
+								<% end %>
+								<% j+=1 %>
+							<% end %>
+						</tr>
+					</table>
+				</td>
+				<% if (i==2 || i==5)%>
+					</tr><tr>
+				<% end %>
+			<% end %>
+		</tr>
+	</table>
+	
+	<%= submit_tag "Create Your Puzzle", class: "btn btn-large btn-primary" %>
+
+<% end %>
+
+
+
+</div>
+
