@@ -8,10 +8,12 @@ BONUS FEATURES
 
 - test for validity of a user-created puzzle
 
-- tell when puzzle can't be solved
+- say how many times a rule has been applied
 
 
 DONE
+
+- tell when puzzle can't be solved
 
 - allow user to create own puzzle
 

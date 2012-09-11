@@ -18,6 +18,7 @@ class SudokusController < ApplicationController
     if @sudoku.big_grid.nil?
       redirect_to edit_sudoku_path(@sudoku)
     else
+      flash[:just_created] = true
       redirect_to sudoku_path(@sudoku)
     end
   end
@@ -30,7 +31,7 @@ class SudokusController < ApplicationController
     @sudoku = Sudoku.find(params[:id])
     rules_used = []
     locations_updated = []
-    # try assigning both of these on 1 line 
+
     if params[:solve_this_many] == "all"
       until @sudoku.solved
         rule_results = @sudoku.apply_rules
@@ -39,7 +40,8 @@ class SudokusController < ApplicationController
         break unless rule_results
         
         rules_used.push(rule_results[:rule_text]) unless rules_used.include?(rule_results[:rule_text])
-        locations_updated.push(rule_results[:location])
+        rule_results[:locations].each { |location| locations_updated.push(location) }
+        # locations_updated.push(rule_results[:location])
       end
     else    
       params[:solve_this_many].to_i.times do
@@ -49,7 +51,8 @@ class SudokusController < ApplicationController
         break unless rule_results
         
         rules_used.push(rule_results[:rule_text]) unless rules_used.include?(rule_results[:rule_text])
-        locations_updated.push(rule_results[:location])
+        rule_results[:locations].each { |location| locations_updated.push(location) }
+        # locations_updated.push(rule_results[:location])
       end
     end
     
@@ -64,22 +67,30 @@ class SudokusController < ApplicationController
   def show
     @sudoku = Sudoku.find(params[:id])
     
+    @just_created = flash[:just_created]
     @rules_used = flash[:rules] || []
     @locations_updated = flash[:locations] || []
+    flash.delete(:just_created)
     flash.delete(:rules)
     flash.delete(:locations)
   end
   
   def update
     @sudoku = Sudoku.find(params[:id])
-    @sudoku.big_grid=Array.new(81)
+    @sudoku.big_grid=[]
     81.times do |i|
       if (params[i.to_s].to_i)
         params[i.to_s].to_i > 0 ? @sudoku.big_grid[i]={ value: params[i.to_s].to_i } : @sudoku.big_grid[i]={}
       end
+      
+      # should find a way to not have to repeat these 2 lines - they are also in massage_grid in sudoku.rb
+      @sudoku.big_grid[i][:location] = i
+      @sudoku.big_grid[i][:possibilities] = []
     end
+    
     @sudoku.save
     
+    flash[:just_created] = true
     redirect_to sudoku_path(@sudoku)
   end
   

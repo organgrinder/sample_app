@@ -3,19 +3,36 @@
 <div class="row" id="big_grid_table">
 	<%= render 'big_grid' %>
 	
-	<% if @rules_used.any? %>
-	<div class="span8 offset0" id="rules-applied">
-		<h3>Rules applied:</h3>
+	<div class="span8 offset0" id="rules-applied">	
 
-		<%= render :partial => "rule_used", :collection => @rules_used %>
+		<% if @just_created %>
+	
+			<h3>Click buttons below to begin solving this puzzle!</h3>
+	
+		<% else %>
+	
+			<% if @rules_used.any? %>
+				<h3>Rules applied:</h3>
+				<%= render :partial => "rule_used", :collection => @rules_used %>
+			<% elsif !@sudoku.solved %>
+				<h3>This puzzle cannot be solved with basic rules!</h3>
+				<!-- Reloading in the middle of solving breaks this logic -->
+				<!-- Message also doesn't display if puzzle is impossible and 
+				user clicks solve entire puzzle just once -->
+			<% end %>
+
+			<% if @sudoku.solved %>
+				<h3>This puzzle is solved!</h3>
+			<% end %>
+	
+		<% end %>
+
 	</div>
-	<% end %>
+
 </div>
 
 <% if !@sudoku.solved %>
 	<%= render 'solver_buttons' %>
-<% else %>
-	<h3>Puzzle Solved!</h3>
 <% end %>
 
 <!-- Display big_grid for debugging purposes -->

@@ -10,9 +10,22 @@
 						<% @sudoku.cube_objects_by_number(i).each do |item| %>
 							<td>
 								<% if (@locations_updated.include?(item[:location])) %>
-									<div class='newly-solved'><b>
+									<div class='newly-solved'>
+								<% else %>
+									<div>
 								<% end %>
-								<%= item[:value] %>
+								
+								<% if item[:value] %>
+									<%= item[:value] %>
+								<% elsif item[:possibilities] %>
+									<div class='possibilities'>
+										<% item[:possibilities].each do |possibility| %>
+											<%= possibility %>
+										<% end %>
+									</div>
+								<% end %>
+								
+								</div>
 							</td>
 							<% if (j==2 || j==5)%>
 								</tr><tr>
