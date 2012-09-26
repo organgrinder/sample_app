@@ -230,7 +230,7 @@ class Sudoku < ActiveRecord::Base
       end
     end
     
-    else return true
+    return true
   end
 
   def can_go_in_column_complex(number, location)
@@ -249,7 +249,7 @@ class Sudoku < ActiveRecord::Base
       end
     end
     
-    else return true
+    return true
   end
 
   def cube_locations_by_number(number)

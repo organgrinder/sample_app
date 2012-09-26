@@ -9,7 +9,9 @@ SampleApp::Application.routes.draw do
 
   resources :sudokus do
     member do
-      post 'solve'
+      # post 'solve'
+      # this appears to work the same as the below
+      post :solve
     end
   end
   resources :sessions, only:      [:new, :create, :destroy]

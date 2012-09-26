@@ -52,8 +52,10 @@ class User < ActiveRecord::Base
 # the line above has_secure_password
   
   def feed
-    #preliminary
-    Micropost.where("user_id = ?", id)
+    Micropost.from_users_followed_by(self)
+    
+    # previously was this preliminary line
+    # Micropost.where("user_id = ?", id)
   end
   
   def following?(other_user)

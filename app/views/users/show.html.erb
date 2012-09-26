@@ -1,19 +1,23 @@
-<% provide(:title, @userToShow.name) %>
+<% provide(:title, @user.name) %>
 
 <div class="row">
 
 	<aside class="span4">
 		<section>
 			<h1>
-				<%= gravatar_for @userToShow, size: 200 %>
-				<%= @userToShow.name %>
+				<%= gravatar_for @user, size: 200 %>
+				<%= @user.name %>
 			</h1>
+		</section>
+		<section>
+			<%= render 'shared/stats' %>
 		</section>
 	</aside>
 
 	<div class="span8">
-		<% if @userToShow.microposts.any? %>
-			<h3>Microposts (<%= @userToShow.microposts.count %>)</h3>
+		<%= render 'follow_form' if signed_in? %>
+		<% if @user.microposts.any? %>
+			<h3>Microposts (<%= @user.microposts.count %>)</h3>
 
 			<ol class="microposts">
 				<%= render @microposts %>

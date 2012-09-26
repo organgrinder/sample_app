@@ -1,17 +1,33 @@
 class UsersController < ApplicationController
-  before_filter :signed_in_user,  only: [:index, :edit, :update]
+  before_filter :signed_in_user,  only: [:index, :edit, :update, :destroy, 
+                :following, :followers]
   before_filter :correct_user,    only: [:edit, :update]
   before_filter :admin_user,      only: :destroy
   before_filter :not_signed_in_user, only: [:new, :create]
 
+  def following
+    @title = "Following"
+    @user = User.find(params[:id])
+    @users = @user.followed_users.paginate(page: params[:page])
+    render 'show_follow'
+  end
+  
+  def followers
+    @title = "Followers"
+    @user = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
+    # show_follow is a full view, not a partial
+  end
+
   def show 
-    @userToShow = User.find(params[:id])
-    @microposts = @userToShow.microposts.paginate(page: params[:page])
+    @user = User.find(params[:id])
+    @microposts = @user.microposts.paginate(page: params[:page])
   end
 
   def method_name
     new
-    @u
+    @user
   end
 
   def new
@@ -60,7 +76,8 @@ class UsersController < ApplicationController
   end # update
   
   def index
-    flash[:success] = "Remote IP is: #{request.remote_ip}" if request.get?
+#    flash[:success] = "Remote IP is: #{request.remote_ip}" if request.get?
+# request.get? tells whether the request made was a GET request
     @users = User.paginate(page: params[:page])
 # instance vars like @users link actions and views
 # when defined here, they are automatically available in the index.html.erb view
