@@ -1,5 +1,5 @@
 GEM
-  remote: https://rubygems.org/
+  remote: http://bundler-api.herokuapp.com/
   specs:
     actionmailer (3.2.6)
       actionpack (= 3.2.6)
@@ -164,6 +164,7 @@ DEPENDENCIES
   faker (= 1.0.1)
   jquery-rails (= 2.0.0)
   pg (= 0.12.2)
+  rack
   rails (= 3.2.6)
   rspec-rails (= 2.10.0)
   sass-rails (= 3.2.4)

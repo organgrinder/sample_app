@@ -1,5 +1,6 @@
 source 'http://bundler-api.herokuapp.com'
 
+gem 'rack'
 gem 'rails', '3.2.6'
 gem 'bootstrap-sass', '2.0.0'
 gem 'bcrypt-ruby', '3.0.1'
