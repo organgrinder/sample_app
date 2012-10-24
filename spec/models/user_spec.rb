@@ -157,6 +157,47 @@ password_confirmation: "foobar", admin: true)
 # it { @user.remember_token.should_not be_blank }
   end
   
+  describe "relationship association" do
+    before do
+      @followed_user = FactoryGirl.create(:user)
+      @followed_user.save
+      @follower_user = FactoryGirl.create(:user)
+      @follower_user.save
+
+      @relation1 = FactoryGirl.create(:relationship, followed_id: @followed_user, 
+                                                    follower_id: @follower_user)
+      @relation1.save
+    end
+    
+    it "relationship should" do
+      @relation1.followed_id.should == @followed_user_id
+      @followed_user.relationships.should include(@relation1)
+      # @follower_user.relationships.should include(@relation1)
+      
+    end
+    
+    it "death of followed user should destroy relationship" do
+      relationships = @followed_user.relationships
+      relationships.should be_nil
+      
+      @followed_user.destroy
+      relationships.each do |relation|
+        Relationship.find_by_id(relation.id).should_not be_nil
+      end
+    end
+
+    it "death of follower should destroy relationship" do
+      relationships = @follower_user.relationships
+      relationships.should_not be_nil
+      
+      @follower_user.destroy
+      relationships.each do |relation|
+        Relationship.find_by_id(relation.id).should_not be_nil
+      end
+    end
+
+  end
+
   describe "micropost association" do
     
     before { @user.save }

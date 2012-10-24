@@ -9,6 +9,7 @@
 	</head>
 	<body>
 		<%= render 'layouts/header' %>
+<%# ---> make this change whether it's Twutter or Sudoku %>
 		<div class="container-fluid">
 			<% flash.each do |key, value| %>
 				<%= content_tag(:div, value, class: "alert alert-#{key}") %>

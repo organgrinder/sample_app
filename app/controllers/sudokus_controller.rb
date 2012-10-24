@@ -15,11 +15,17 @@ class SudokusController < ApplicationController
         Sudoku.create(params[:sudoku])
       end
 
-    if @sudoku.big_grid.nil?
-      redirect_to edit_sudoku_path(@sudoku)
+    if @sudoku.save
+
+      # for custom sudoku
+      if @sudoku.big_grid.nil?
+        redirect_to edit_sudoku_path(@sudoku)
+      else
+        flash[:just_created] = true
+        redirect_to sudoku_path(@sudoku)
+      end
     else
-      flash[:just_created] = true
-      redirect_to sudoku_path(@sudoku)
+      render new_sudoku_path
     end
   end
   
@@ -31,6 +37,12 @@ class SudokusController < ApplicationController
     @sudoku = Sudoku.find(params[:id])
     rules_used = []
     locations_updated = []
+    File.open(
+'/Users/jamesharris/rails_projects/sample_app/app/views/static_pages/test.txt', 'a') do |f|
+    	f.puts "solver"
+    	f.puts "solve"
+    end
+    
 
     if params[:solve_this_many] == "all"
       until @sudoku.solved
@@ -60,6 +72,7 @@ class SudokusController < ApplicationController
     
     flash[:rules] = rules_used
     flash[:locations] = locations_updated
+    flash[:rules_attempted] = true
     
     redirect_to sudoku_path(@sudoku)
   end
@@ -68,11 +81,13 @@ class SudokusController < ApplicationController
     @sudoku = Sudoku.find(params[:id])
     
     @just_created = flash[:just_created]
+    @rules_attempted = flash[:rules_attempted]
     @rules_used = flash[:rules] || []
     @locations_updated = flash[:locations] || []
     flash.delete(:just_created)
     flash.delete(:rules)
     flash.delete(:locations)
+    flash.delete(:rules_attempted)
   end
   
   def update

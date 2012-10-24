@@ -14,7 +14,7 @@
 			<% if @rules_used.any? %>
 				<h3>Rules applied:</h3>
 				<%= render :partial => "rule_used", :collection => @rules_used %>
-			<% elsif !@sudoku.solved %>
+			<% elsif @rules_attempted && !@sudoku.solved %>
 				<h3>This puzzle cannot be solved with basic rules!</h3>
 				<!-- Reloading in the middle of solving breaks this logic -->
 				<!-- Message also doesn't display if puzzle is impossible and 

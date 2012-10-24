@@ -1,7 +1,5 @@
 STILL LEFT TO DO
 
-- implement more than 1 rule
-
 ---------------------------------
 
 BONUS FEATURES
@@ -10,8 +8,12 @@ BONUS FEATURES
 
 - say how many times a rule has been applied
 
+- AJAX updating of grid
+
 
 DONE
+
+- implement more than 1 rule
 
 - tell when puzzle can't be solved
 

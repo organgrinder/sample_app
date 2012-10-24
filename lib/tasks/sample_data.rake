@@ -27,9 +27,6 @@ end # make_users
     
 def make_microposts
   users = User.all(limit: 6)
-#---> why is this users instead of @users ?
-#---> think i have a little more to digest re @vars vs vars
-# and which ones are available to which files
   50.times do
     content = Faker::Lorem.sentence(5)
     users.each { |user| user.microposts.create(content: content) }

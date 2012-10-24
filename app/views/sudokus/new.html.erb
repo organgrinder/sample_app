@@ -2,8 +2,14 @@
 <h1>Sudoku Solver</h1>
 <div class="row">
 	<div class="span6 offset3">
+
 		<%= form_for(@sudoku) do |f| %>
-						
+			<div id="error_explanation">
+				<% @sudoku.errors.full_messages.each do |msg| %>
+			      <li><%= msg %></li>
+			    <% end %>
+			</div>
+					
 			<%= f.label :content, "Name your puzzle" %>
 			<%= f.text_field :content %>
 						

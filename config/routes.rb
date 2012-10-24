@@ -24,6 +24,10 @@ SampleApp::Application.routes.draw do
   root to: 'static_pages#home'
 # this is a special one that only works for the home page
 
+  match '/sender', to: 'static_pages#sender'
+  match '/test', to: 'static_pages#test', via: :post
+  match '/record', to: 'static_pages#record', via: :post
+  match '/maps',  to: 'static_pages#maps'
   match '/sudoku',  to: 'sudokus#new'
   match '/signup',  to: 'users#new'
   match '/signin', to: 'sessions#new'

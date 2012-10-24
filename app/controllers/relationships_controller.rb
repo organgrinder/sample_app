@@ -5,7 +5,7 @@ class RelationshipsController < ApplicationController
   
   def create
     @user = User.find(params[:relationship][:followed_id])
-    # ---> try this out, see what is sent in the params hash under :relationship
+    # in the params hash under :relationship, is a hash with 1 entry: {"followed_id" => "9"}
     current_user.follow!(@user)
     respond_to do |format|
       format.html { redirect_to @user }
@@ -21,6 +21,9 @@ class RelationshipsController < ApplicationController
     @user = Relationship.find(params[:id]).followed
     current_user.unfollow!(@user)
     respond_to do |format|
+      # respond_to refers to the action - create or destroy
+      # and Rails automatically translates this into a .erb file
+      # so format.js will usually call destroy.js.erb
       format.html { redirect_to @user }
       format.js
     end

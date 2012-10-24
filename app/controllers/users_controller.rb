@@ -40,7 +40,8 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
 # must be @user, nothing else, b/c otherwise the form_for that gets called
 # in the else clause via 'render 'new'' gets screwed up
-#---> not sure why
+# b/c calling render skips the controller action and goes straigh to the view,
+# where @user needs to be defined
 
     if @user.save
       sign_in @user

@@ -1,4 +1,5 @@
 class Sudoku < ActiveRecord::Base
+  validates :content, :presence => { :in => true, :message => "error --puzzle must have a name" }
 
   attr_accessible :content, :big_grid
   serialize :big_grid
