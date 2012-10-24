@@ -16,9 +16,10 @@
 			&libraries=visualization">
 	    </script>
 		
-		<%# this tells Rails to include the script called mapScript %>
-		<%# found somewhere in the app/assets folder %>
-		<%# (it's in app/assets/javascripts) %>
+		<%# this previously said to include mapScript %>
+		<%# which was supposed to tell Rails to include the script called mapScript %>
+		<%# found somewhere in the app/assets folder (it's in app/assets/javascripts) %>
+		<%# instead we include application.js, which includes all the .js in app/assets %>
 	 	<%= javascript_include_tag "application" %>
 	
 	</head>
