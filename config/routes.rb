@@ -14,11 +14,13 @@ SampleApp::Application.routes.draw do
       post :solve
     end
   end
+  
   resources :sessions, only:      [:new, :create, :destroy]
   resources :microposts, only:    [:create, :destroy]
   resources :relationships, only: [:create, :destroy] 
 
 #  get "users/new"
+#  this is shorthand for match "users/new", to: "users#new", via: get
 #  this one no longer necessary now that we have the above
 
   root to: 'static_pages#home'
