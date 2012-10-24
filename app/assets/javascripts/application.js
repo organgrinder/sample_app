@@ -12,4 +12,4 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require mapscript
+//= app/assets/javascripts/mapscript.js
