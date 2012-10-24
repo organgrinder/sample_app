@@ -11,6 +11,7 @@ puts file_data
 
 =begin
   NEXT:
+  1. make it work on Heroku
   2. avoid loading file when not necessary
   3. display more information - zoom level, max/min elevation shown
   4. mouseover elevation?
