@@ -1,1 +1,0 @@
-test text from inside test.txt in assets/javascripts
