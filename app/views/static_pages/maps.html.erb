@@ -10,7 +10,7 @@
 	    </style>
 	
 	    <script type="text/javascript"
-			src="http://maps.googleapis.com/maps/api/js
+			src="//maps.googleapis.com/maps/api/js
 			?key=AIzaSyCXAocGD2cgELvYBmMpz1CLG81YlEHfdrA
 			&sensor=false
 			&libraries=visualization">
@@ -27,7 +27,6 @@
 	<!-- this is an alternative to the DOM Listener included in mapScript.js  -->
 	<!-- <body onload="initialize()"> -->
 	<body>
-		<div id="map_canvas2" style="width:90%; height:90%"></div>
 		<div id="map_canvas" style="width:90%; height:90%"></div>		
 		<div id="reload">
 			<button type="button" onClick="gatherElevations()" class="btn btn-large btn-primary">
@@ -36,8 +35,15 @@
 			<button type="button" onClick="showElevations()" class="btn btn-large btn-primary">
 				Show Elevations In View
 			</button>
+
+
 			<button type="button" onClick="gatherGridElevations()" class="btn btn-large btn-primary">
 				Gather Batch of Grid Elevations
+			</button>
+
+
+			<button type="button" onClick="changeGradient()" class="btn btn-large btn-primary">
+				Change Gradient Colors
 			</button>
 			
 		</div>

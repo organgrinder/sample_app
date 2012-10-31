@@ -12,4 +12,5 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= app/assets/javascripts/mapscript.js
+//= require bootstrap
+//= require_tree .
