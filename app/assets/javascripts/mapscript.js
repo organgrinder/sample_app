@@ -1,20 +1,7 @@
 var map, elevHeatmap, cubes;
-
-var gradient = [
-   'rgba(0, 255, 255, 0)',
-	'rgba(0, 255, 255, 1)',
-	'rgba(0, 191, 255, 1)',
-	'rgba(0, 127, 255, 1)',
-	'rgba(0, 63, 255, 1)',
-	'rgba(0, 0, 255, 1)',
-	'rgba(0, 0, 223, 1)',
-	'rgba(0, 0, 191, 1)',
-	'rgba(0, 0, 159, 1)',
-	'rgba(0, 0, 127, 1)',
-	'rgba(63, 0, 91, 1)',
-	'rgba(127, 0, 63, 1)',
-	'rgba(191, 0, 31, 1)',
-	'rgba(255, 0, 0, 1)'];
+var lines, moreLines;
+const LAT_INCREMENT = .0008333333333333;
+const LNG_INCREMENT = .0008333333333333;
 
 google.maps.event.addDomListener(window, 'load', initialize)
 
@@ -30,7 +17,7 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP,
 		disableDefaultUI: false,
 		scaleControl: true,
-		zoomControl: false,
+		zoomControl: true,
 		panControl: false,
 		streetViewControl: false,
 		zoomControlOptions: {
@@ -57,8 +44,198 @@ function initialize() {
 	
 } // end initialize
 
-const LAT_INCREMENT = .0008333333333333;
-const LNG_INCREMENT = .0008333333333333;
+function showElevations(event) {
+	// main function to display and alter heatmap
+	
+	// lines persists as global var to avoid reloading file on every map view change
+	if (!lines) { lines = loadFile('elevations.txt'); } 
+		
+	// create object to hold data needed to create heatmap and
+	// put data into form needed by Google API heatmap function
+	var viewHeater = new heater(map);
+
+	// test if each point from file is in current view and not water
+	// update max- and minElevation if necessary
+	viewHeater.addRelevantLines(lines);
+
+	// load additional data at zoom 15 and above
+	if (map.getZoom() >= 15) { 
+		if (!moreLines) { moreLines = loadFile('elevations3.txt'); }
+		viewHeater.addRelevantLines(moreLines);
+	}
+	
+	// create Google data array object using points in view and appropriate weights
+	viewHeater.makeHeatmapElevData();
+	
+	// remove elevHeatmap before re-creating it so it doesn't darken upon button reclicks
+	if (elevHeatmap) { elevHeatmap.setMap(null); }
+
+	// create heatmap layer and add it to the map
+	elevheatMap = viewHeater.makeHeatmap();
+    elevHeatmap.setMap(map);
+
+} // end showElevations
+
+function loadFile(filename) {
+	var returned;
+	$.ajax({
+		url: 'sender',
+		data: { file: filename },
+		async: false,
+		success: function(result) {
+			returned = result.split("\n");
+		}
+	});
+	return returned;
+}
+
+function heater(map) {
+	var currBounds = map.getBounds();
+	
+	this.top = currBounds.getNorthEast().lat();
+	this.bottom = currBounds.getSouthWest().lat();
+	this.left = currBounds.getSouthWest().lng();
+	this.right = currBounds.getNorthEast().lng();
+	
+	this.bottomer = this.bottom - (this.top - this.bottom) * .05;
+	this.topper = this.top + (this.top - this.bottom) * .05;
+	this.lefter = this.left - (this.right - this.left) * .05;
+	this.righter = this.right + (this.right - this.left) * .05;
+	
+	this.zoom = map.getZoom();
+	this.maxElevation = -Infinity;
+	this.minElevation = Infinity;
+	this.linesToInclude = [];
+	this.heatmapElevData = [];
+	
+	this.addRelevantLines = function(lines) {
+		for (var i = 0; i < lines.length-1; i++) {
+			var lineItems = lines[i].split(" ");
+			
+			// for each line in the file, add it to 'linesToInclude' if the point represented
+			// is in the current view + 5% and has positive elevation (i.e. on land)	
+			if (lineItems[0] > this.bottomer 	&& lineItems[0] < this.topper && 
+				lineItems[1] > this.lefter	 	&& lineItems[1] < this.righter &&
+				lineItems[2] > 0) { 
+
+				this.linesToInclude.push(lines[i]);
+
+				// for each line added, update elevation bounds if point actually in view
+				if (lineItems[0] > this.bottom 	&& lineItems[0] < this.top && 
+					lineItems[1] > this.left	&& lineItems[1] < this.right) {
+				
+					this.maxElevation = Math.max(this.maxElevation, lineItems[2]);
+					this.minElevation = Math.min(this.minElevation, lineItems[2]);
+				}
+			}		
+		}
+	}
+	
+	this.makeHeatmapElevData = function() {
+		// make array of weighted Google LatLng objects using lines in 'linesToInclude'
+		
+		for (var i = 0; i < this.linesToInclude.length; i++) {
+			var lineItems = this.linesToInclude[i].split(" ");
+			this.heatmapElevData.push({ 
+				location: new google.maps.LatLng(lineItems[0], lineItems[1]), 
+				weight: ((lineItems[2] - this.minElevation) / 
+					(this.maxElevation - this.minElevation)) 
+			});
+		}
+	}
+	
+	this.makeHeatmap = function() {
+		// make Google HeatmapLayer using array of weighted Google LatLng objects
+		
+		heatmapElevArray = new google.maps.MVCArray(this.heatmapElevData);
+				
+	    elevHeatmap = new google.maps.visualization.HeatmapLayer({
+		    data: heatmapElevArray,
+			opacity: .6,
+			maxIntensity: 2,
+			dissipating: true,
+			radius: influenceByZoomLevel(this.zoom),
+			gradient: blueOrGreen()
+	    });
+
+		return elevHeatmap;
+	}
+	
+} // end heater
+
+function influenceByZoomLevel(zoom) {
+	//increase each point's radius of influence (in pixels) at higher zoom level
+	
+	if (zoom >= 17) { return 110; } 
+	if (zoom >= 16) { return 80; } 
+	if (zoom >= 15) { return 45; } // additional data loaded at zoom 15 as well
+	if (zoom >= 14) { return 30; }
+	if (zoom >= 13) { return 15; }
+	return 10;
+}
+
+function blueOrGreen() {
+	// causes map coloration to persist
+	// returns null (signal to use default) if gradiant has not been set yet
+
+	var blueOrGreen;
+	
+	if (elevHeatmap && elevHeatmap.gradient) {
+		blueOrGreen = gradient();
+	}
+	return blueOrGreen;
+}
+
+function gradient() {
+	return [
+	   'rgba(0, 255, 255, 0)',
+		'rgba(0, 255, 255, 1)',
+		'rgba(0, 191, 255, 1)',
+		'rgba(0, 127, 255, 1)',
+		'rgba(0, 63, 255, 1)',
+		'rgba(0, 0, 255, 1)',
+		'rgba(0, 0, 223, 1)',
+		'rgba(0, 0, 191, 1)',
+		'rgba(0, 0, 159, 1)',
+		'rgba(0, 0, 127, 1)',
+		'rgba(63, 0, 91, 1)',
+		'rgba(127, 0, 63, 1)',
+		'rgba(191, 0, 31, 1)',
+		'rgba(255, 0, 0, 1)'
+	];
+}
+
+function changeGradient() {
+	elevHeatmap.setOptions({
+	    gradient: elevHeatmap.get('gradient') ? null : gradient()
+	});
+}
+
+function toggleHeatmap() {
+	heatmap.setMap(heatmap.getMap() ? null : map2);
+}
+
+function placeMarker(location, percentage) {
+
+	var color = '#FF0000';
+	var opacity = percentage;
+	
+	var marker = new google.maps.Marker({
+		position: location,
+		map: map,
+		flat: true,
+		icon: { 
+			path: google.maps.SymbolPath.CIRCLE,
+			scale: 20,
+			fillOpacity: opacity,
+			fillColor: color,
+			strokeColor: color,
+			strokeOpacity: opacity,
+			strokeWeight: 1
+		},
+		title: percentage.toString()
+	});
+} // end placeMarker
 
 // gatherGridElevations used only to pull data which is stored in file on server
 // does not have ongoing purpose
@@ -156,298 +333,6 @@ function gatherGridElevations(event) {
 	});
 
 } // end gatherGridElevations
-
-function showElevations(event) {
-	var dataString = 	"37.780 -122.430 32.49013519287109 \
-						37.780 -122.432 29.66671943664551 \
-						37.780 -122.434 22.37393188476562 \
-						37.780 -122.436 80.25514221191406 \
-						37.780 -122.438 96.3092041015625 \
-						37.781 -122.430 69.87810516357422 \
-						37.781 -122.432 45.20539093017578 \
-						37.781 -122.434 45.39119338989258 \
-						37.781 -122.436 61.73223876953125 \
-						37.781 -122.438 35.80148315429688 \
-						37.782 -122.430 21.24711990356445 \
-						37.782 -122.432 94.37227630615234 \
-						37.782 -122.434 48.39481353759766 \
-						37.782 -122.436 34.74443054199219 \
-						37.782 -122.438 31.88492393493652 \
-						37.783 -122.430 21.54588508605957 \
-						37.783 -122.432 12.73579597473145 \
-						37.783 -122.434 73.46012878417969 \
-						37.783 -122.436 63.4591178894043 \
-						37.783 -122.438 45.91290283203125 \
-						37.784 -122.430 20.77692985534668 \
-						37.784 -122.432 16.33996200561523 \
-						37.784 -122.434 7.308896541595459 \
-						37.784 -122.436 72.64293670654297 \
-						37.784 -122.438 68.78495025634766 \
-						37.785 -122.430 47.55492401123047 \
-						37.785 -122.432 24.4963264465332 \
-						37.785 -122.434 8.531320571899414 \
-						37.785 -122.436 6.679337501525879 \
-						37.785 -122.438 113.2409133911133 \
-						37.786 -122.430 3.934934377670288 \
-						37.786 -122.432 63.0922966003418 \
-						37.786 -122.434 78.76312255859375 \
-						37.786 -122.436 43.56306457519531 \
-						37.786 -122.438 90.13072204589844";
-
-	var elevations = [];
-	var heatmapElevData = [];
-
-	// using data from above
-/*
-	var dataArray = dataString.split(" ");
-	
-	for (var i=0;i<dataArray.length/3;i++) {
-		elevations[i] = dataArray[i*3+2];
-	}
-
-	var maxElevation = Math.max.apply(Math, elevations);
-	
-	for (var i=0;i<dataArray.length;i+=3) {
-		heatmapElevData.push({ 
-			location: new google.maps.LatLng(
-				dataArray[i], 
-				dataArray[i+1]), 
-				weight: (dataArray[i+2] / maxElevation
-			) 
-		});
-	}
-*/
-	
-	// using data from file on server
-
-	var currentFile;
-	var recordPuller = new XMLHttpRequest();
-	
-	recordPuller.onreadystatechange = function() {
-		if(recordPuller.readyState == 4) {
-			currentFile = recordPuller.responseText;
-		} else {
-			return;
-		}
-	}
-		
-	recordPuller.open("GET", "sender?file=elevations.txt", false);
-	recordPuller.send()
-	
-	var lines = currentFile.split("\n");
-
-	// get bounds of current view to test what points are in the view
-	var currBounds = map.getBounds();
-	var top = currBounds.getNorthEast().lat();
-	var bottom = currBounds.getSouthWest().lat();
-	var left = currBounds.getSouthWest().lng();
-	var right = currBounds.getNorthEast().lng();
-
-	// there's prob a more elegant way to do this
-	var maxElevation = -Infinity;
-	var minElevation = 30000; 
-	
-	var linesToInclude = [];
-	
-	// test if each point is in view and not water
-	// and update max- and minElevation if necessary
-	for (var i = 0; i < lines.length-1; i++) {
-		var lineItems = lines[i].split(" ");
-		
-		if (lineItems[0] > bottom && lineItems[0] < top && 
-			lineItems[1] > left && lineItems[1] < right &&
-			lineItems[2] > 0) { 
-				linesToInclude.push(lines[i]);
-				maxElevation = Math.max(maxElevation, lineItems[2]);
-				minElevation = Math.min(minElevation, lineItems[2]);
-		}
-	}
-
-	// create data array using points in view and appropriate weights
-	for (var i = 0; i < linesToInclude.length; i++) {
-		var lineItems = linesToInclude[i].split(" ");
-		heatmapElevData.push({ 
-			location: new google.maps.LatLng(lineItems[0], lineItems[1]), 
-			weight: ((lineItems[2] - minElevation) / (maxElevation - minElevation)) 
-		});
-	}
-	
-	// load additional data at zoom 15 and above
-	if (map.getZoom() >= 15) { 
-		var recordPuller3 = new XMLHttpRequest();
-
-		recordPuller3.onreadystatechange = function() {
-			if(recordPuller3.readyState == 4) {
-				currentFile = recordPuller3.responseText;
-			} else {
-				return;
-			}
-		}
-
-		recordPuller3.open("GET", "sender?file=elevations3.txt", false);
-		recordPuller3.send()
-
-		var lines = currentFile.split("\n");
-
-		// same tests for whether point is in view and not water
-		for (var i = 0; i < lines.length-1; i++) {
-			var lineItems = lines[i].split(" ");
-
-			if (lineItems[0] > bottom && lineItems[0] < top && 
-				lineItems[1] > left && lineItems[1] < right &&
-				lineItems[2] > 0) { 
-					heatmapElevData.push({ 
-						location: new google.maps.LatLng(lineItems[0], lineItems[1]), 
-						weight: (lineItems[2] / maxElevation) 
-					});
-			}
-		}
-	}
-	
-	// repeat more points at higher zoom levels
-/*
-	if (map.getZoom() > 15) { 
-		var stop = heatmapElevData.length; // to avoid infinite loop
-		for (var i = 0; i < stop; i++) {
-			heatmapElevData.push({ 
-				location: new google.maps.LatLng(
-					heatmapElevData[i].location.lat(), 
-					parseFloat(heatmapElevData[i].location.lng()) - LNG_INCREMENT / 2), 
-				weight: heatmapElevData[i].weight
-			});
-		}
-	}
-*/
-
-	// increase influence radius at higher zooms
-	var influence = 10;
-	if (map.getZoom() >= 13) { influence = 15; }
-	if (map.getZoom() >= 14) { influence = 30; }
-	if (map.getZoom() >= 15) { influence = 45; } // additional data loaded at zoom 15 as well
-	if (map.getZoom() >= 16) { influence = 80; } 
-	if (map.getZoom() >= 17) { influence = 110; } 
-	
-		
-	// add all points regardless of zoom level
-/*
-	for (var i = 0; i < lines.length-1; i++) {
-		var lineItems = lines[i].split(" ");
-		if (lineItems[2] > 0) { // exclude water
-			heatmapElevData.push({ 
-				location: new google.maps.LatLng(
-					lineItems[0], 
-					lineItems[1]), 
-					weight: (lineItems[2] / 200
-				) 
-			});
-		}
-		// repeat each point half-step up and half-step over for density purposes
-		// increasing influence works just as well, and is easier
-		
-		// heatmapElevData.push({ 
-		// 	location: new google.maps.LatLng(
-		// 		parseFloat(lineItems[0]) + LAT_INCREMENT / 2, 
-		// 		parseFloat(lineItems[1]) + LNG_INCREMENT / 2), 
-		// 		weight: (lineItems[2] / 200
-		// 	) 
-		// });
-	}
-*/
-	
-	// create the heatmap using random data
-/*
-	var startLat = 37.705;
-	var startLng = -122.515;
-	
-	for (var i = 0; i < 125; i++) {
-		for (var j = 0; j < 125; j++) {
-			heatmapElevData.push({ 
-				location: new google.maps.LatLng(
-					startLat + i * .001, 
-					startLng + j * .0013), 
-					weight: (Math.random()
-				) 
-			});
-		}
-	}
-*/
-
-	// remember whether elevHeatmap is blue or green	
-	var blueOrGreen;
-	if (elevHeatmap && elevHeatmap.gradient) {
-		blueOrGreen = gradient;
-	} 
-	
-	// remove elevHeatmap before re-creating it so it doesn't darken upon button reclicks
-	// may not need this any more if we remove button
-	// keep button for now in case auto-load is too slow on live site
-	if (elevHeatmap) { 
-		elevHeatmap.setMap(null);
-	}
-
-	heatmapElevArray = new google.maps.MVCArray(heatmapElevData);
-
-    elevHeatmap = new google.maps.visualization.HeatmapLayer({
-	    data: heatmapElevArray,
-		opacity: .6,
-		maxIntensity: 2,
-		dissipating: true,
-		radius: influence,
-		gradient: blueOrGreen
-    });
-
-    elevHeatmap.setMap(map);
-
-	// show elevation using markers instead of heatmap
-/*	
-	var markers = 0;
-
-	for (var i=0;i<dataArray.length;i+=3) {
-		document.getElementById("test_output").innerHTML += '<br>maxElevation: ' + 
-			maxElevation;
-		var location = new google.maps.LatLng(dataArray[i], dataArray[i+1]);
-		var elevation = parseFloat(dataArray[i+2]);
-		var percentage = elevation / maxElevation;
-		// elevation = "maxElevation";
-		placeMarker(location, percentage);
-		markers++;
-	}
-*/
-
-} // end showElevations
-
-function toggleHeatmap() {
-	heatmap.setMap(heatmap.getMap() ? null : map2);
-}
-
-function changeGradient() {
-
-	elevHeatmap.setOptions({
-	    gradient: elevHeatmap.get('gradient') ? null : gradient
-	});
-}
-
-function placeMarker(location, percentage) {
-
-	var color = '#FF0000';
-	var opacity = percentage;
-	
-	var marker = new google.maps.Marker({
-		position: location,
-		map: map,
-		flat: true,
-		icon: { 
-			path: google.maps.SymbolPath.CIRCLE,
-			scale: 20,
-			fillOpacity: opacity,
-			fillColor: color,
-			strokeColor: color,
-			strokeOpacity: opacity,
-			strokeWeight: 1
-		},
-		title: percentage.toString()
-	});
-} // end placeMarker
 
 // BELOW HERE IS STUFF NOT BEING USED
 // KEPT FOR REFERENCE/LEARNING
@@ -697,4 +582,37 @@ function postElevation(event) {
 } // end postElevation
 */
 
+	// WAS INSIDE SHOWELEVATIONDATA
+	// show elevation using markers instead of heatmap
+/*	
+	var markers = 0;
 
+	for (var i=0;i<dataArray.length;i+=3) {
+		document.getElementById("test_output").innerHTML += '<br>maxElevation: ' + 
+			maxElevation;
+		var location = new google.maps.LatLng(dataArray[i], dataArray[i+1]);
+		var elevation = parseFloat(dataArray[i+2]);
+		var percentage = elevation / maxElevation;
+		// elevation = "maxElevation";
+		placeMarker(location, percentage);
+		markers++;
+	}
+*/
+
+	// THE LONG WAY TO DO AN AJAX REQUEST
+/*
+var recordPuller = new XMLHttpRequest();
+	
+recordPuller.onreadystatechange = function() {
+	if(recordPuller.readyState == 4) {
+		currentFile = recordPuller.responseText;
+	} else {
+		return;
+	}
+}
+
+recordPuller.open("GET", "sender?file=elevations.txt", false);
+recordPuller.send()
+*/
+
+	// $("#test_output").append('<br>size: ' + lines.length);

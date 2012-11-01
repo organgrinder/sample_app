@@ -37,16 +37,24 @@ puts "outside loop"
 
 =begin
   NEXT:
-  1. make it work on Heroku
+  2. make it work just by loading static pages on github (will require an index.html)
+    - start local http server with 'python -mSimpleHTTPServer' in terminal
+  2. refactor with smaller readable methods
+  2. get rid of pure js, insert jquery
+  2. fix the flashing - clear only after a reload is done (no reloading file may help this)
   2. separate maps into a new github project
+  3. write explanation/story
   2. real url
+  2. more helpful gradiant colors - sharper edges maybe?
   2. style it with bootstrap CSS / otherwise make it pretty
-  2. avoid loading file when not necessary
   3. display more information - zoom level, max/min elevation shown
   4. mouseover elevation?
   6. redo whole thing in openStreetMap to show elev of blocks/streets
   
   DONE:
+  3. eliminate green border at edge of view window
+  2. avoid loading file when not necessary
+  1. make it work on Heroku
   1. relative file path names
   2. clean up the uneccesary stuff / comment
   5. auto-redo heat map upon zoom or view change?
